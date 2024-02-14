@@ -31,6 +31,7 @@ if(not network_manager.available_servers):  # if there is not host broadcasting 
     thread = threading.Thread(target=become_server)
     thread.daemon = True
     thread.start()
+    time.sleep(1)
     host_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host_client.connect((my_ip, network_manager.port))
     while True:
