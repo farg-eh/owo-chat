@@ -27,6 +27,7 @@ def get_myip():   # this is stupid i should find another way
 class Network:
     # this class has methods that help manage the networking of the game
     def __init__(self):
+        self.running = True
         self.port = 1313
         self.password = 'owo'
         self.my_ip = get_myip()
@@ -59,7 +60,7 @@ class Network:
     # client methods
     def search_for_ips(self):         # this should be run in another thread
         # listens to the broadcast
-        while True:
+        while self.running:
             if self.search:
                 data, address = self.search_socket.recvfrom(1024)
                 # logging.debug(f'data:{data}, address {address}')
@@ -73,7 +74,7 @@ class Network:
     # server methods
     def broadcast_password(self):      # this should be run in another thread
         # sends a password over the broadcast ip address
-        while True:
+        while self.running:
             if self.broadcast:
                 self.broadcast_socket.sendto(self.password.encode(), self.broadcast_address)
                 #logging.debug(f"Broadcasting password: {self.password}")
@@ -85,6 +86,11 @@ class Network:
         for socket, ip, nickname in self.clients:
             socket.close()
             print(f"closed connection with {name}")
+        self.running = False
+        time.sleep(0.2)
+        sys.exit()
+
+
 
 
     def client_handler(self, conn, address, name): # runs in another thread to handle the interactions between each client
@@ -94,7 +100,7 @@ class Network:
         except Exception as e:
             print(f"Error :: {e}")
 
-        while True:
+        while self.running:
             try:
                 data = conn.recv(1024)
                 msg = data.decode('utf-8')
@@ -102,19 +108,22 @@ class Network:
                     print("connection closed by client.")
                     self.clients.remove([conn, address, name])
                     conn.close()
-                    for c in self.clients:
-                        print(f"clients: {c[1]}")
-                    break
+                    if not self.clients:
+                        self.close()
+                        break
                 # print(f"server recived: {data.decode('utf-8')}")
                     # send the msg to all the clients except the one who sent it
                 for socket, addr, name in self.clients:
                     if addr != address:
                         socket.sendall((name + ": " + msg).encode('utf-8'))
+                    else:
+                        socket.sendall(("(sent)").encode('utf-8'))
                     #else:
                      #   socket.sendall("(sent)".encode("utf_8"))
             except Exception as e:
                 print(f"Error: {e}")
                 break
+        sys.exit()
 
     def add_client(self, client_socket, address, name):
         self.clients.append([client_socket, address, name])

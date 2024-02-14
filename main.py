@@ -16,10 +16,11 @@ def become_server():
         port = network_manager.port
         server.bind((my_ip, port))
         server.listen()
-        while True: # this loop accepts connections and creates a thread for each connections the thread is handled in the network class
+        while network_manager.running: # this loop accepts connections and creates a thread for each connections the thread is handled in the network class
             client_socket, address = server.accept()
             client_name = client_socket.recv(1024).decode("utf-8")
             network_manager.add_client(client_socket, address[0], client_name)
+    sys.exit()
 
 
 print("searching for a host...")
@@ -38,7 +39,7 @@ if(not network_manager.available_servers):  # if there is not host broadcasting 
     host_client.connect((my_ip, network_manager.port))
     host_client.sendall(name.encode("utf-8"))
 
-    while True:
+    while network_manager.running:
         data = host_client.recv(1024)
         print(data.decode('utf-8'))
         msg = input("send: ")
@@ -57,7 +58,7 @@ else:
         client.connect((server_ip, port))
         print("connected successfully")
         client.sendall(name.encode("utf-8"))
-        while True:
+        while network_manager.running:
             data = client.recv(1024)
             print(data.decode('utf-8'))
             msg = input("send: ")
