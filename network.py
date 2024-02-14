@@ -82,38 +82,44 @@ class Network:
     def close(self):
         self.search_socket.close()
         self.broadcast_socket.close()
-        for socket, ip in self.clients:
+        for socket, ip, nickname in self.clients:
             socket.close()
-            print(f"closed connection with {ip}")
+            print(f"closed connection with {name}")
 
 
-    def client_handler(self, conn, address): # runs in another thread to handle the interactions between each client
+    def client_handler(self, conn, address, name): # runs in another thread to handle the interactions between each client
+
+        try: # send the name to all the clients
+            conn.sendall(("you have joined the owo chat !").encode('utf-8'))
+        except Exception as e:
+            print(f"Error :: {e}")
+
         while True:
             try:
                 data = conn.recv(1024)
                 msg = data.decode('utf-8')
-                if(not data or msg == "-quit"):
+                if not data or msg == "-quit":
                     print("connection closed by client.")
-                    self.clients.remove([conn, address])
+                    self.clients.remove([conn, address, name])
                     conn.close()
                     for c in self.clients:
                         print(f"clients: {c[1]}")
                     break
                 # print(f"server recived: {data.decode('utf-8')}")
                     # send the msg to all the clients except the one who sent it
-                for socket, addr in self.clients:
-                    #if addr != address:
-                        socket.sendall((address+": "+msg).encode('utf-8'))
+                for socket, addr, name in self.clients:
+                    if addr != address:
+                        socket.sendall((name + ": " + msg).encode('utf-8'))
                     #else:
                      #   socket.sendall("(sent)".encode("utf_8"))
             except Exception as e:
                 print(f"Error: {e}")
                 break
 
-    def add_client(self, client_socket, address):
-        self.clients.append([client_socket, address])
+    def add_client(self, client_socket, address, name):
+        self.clients.append([client_socket, address, name])
         # print(f"{address} hava joined the chat !")
-        thread = threading.Thread(target=self.client_handler, args=(client_socket, address))
+        thread = threading.Thread(target=self.client_handler, args=(client_socket, address, name))
         thread.daemon = True
         thread.start()
 

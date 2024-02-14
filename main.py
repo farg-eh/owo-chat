@@ -3,6 +3,7 @@ from support import timed_loop
 import time, socket, threading
 
 # password = "owo"
+name = input("Enter a nickname: ")
 network_manager = Network()
 my_ip = network_manager.my_ip
 
@@ -17,7 +18,8 @@ def become_server():
         server.listen()
         while True: # this loop accepts connections and creates a thread for each connections the thread is handled in the network class
             client_socket, address = server.accept()
-            network_manager.add_client(client_socket, address[0])
+            client_name = client_socket.recv(1024).decode("utf-8")
+            network_manager.add_client(client_socket, address[0], client_name)
 
 
 print("searching for a host...")
@@ -31,14 +33,17 @@ if(not network_manager.available_servers):  # if there is not host broadcasting 
     thread = threading.Thread(target=become_server)
     thread.daemon = True
     thread.start()
-    time.sleep(1)
     host_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    time.sleep(1)
     host_client.connect((my_ip, network_manager.port))
+    host_client.sendall(name.encode("utf-8"))
+
     while True:
-        msg = input("send: ")
-        host_client.sendall(msg.encode("utf-8"))
         data = host_client.recv(1024)
         print(data.decode('utf-8'))
+        msg = input("send: ")
+        host_client.sendall(msg.encode("utf-8"))
+
 
 
 
@@ -51,11 +56,13 @@ else:
         server_ip = network_manager.available_servers[0]
         client.connect((server_ip, port))
         print("connected successfully")
+        client.sendall(name.encode("utf-8"))
         while True:
-            msg = input("send: ")
-            client.sendall(msg.encode("utf-8"))
             data = client.recv(1024)
             print(data.decode('utf-8'))
+            msg = input("send: ")
+            client.sendall(msg.encode("utf-8"))
+
 
 
 
