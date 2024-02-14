@@ -102,7 +102,6 @@ class Network:
                 # print(f"server recived: {data.decode('utf-8')}")
                     # send the msg to all the clients except the one who sent it
                 for socket, addr in self.clients:
-                    print(f"addr: {addr}  address: {address}")
                     if addr != address:
                         socket.sendall((address+": "+msg).encode('utf-8'))
                     else:
