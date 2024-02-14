@@ -63,9 +63,9 @@ class Network:
             if self.search:
                 data, address = self.search_socket.recvfrom(1024)
                 # logging.debug(f'data:{data}, address {address}')
-                if data.decode() == 'owo' and not address[0] in self.available_servers and address[0] != self.my_ip:
+                if data.decode() == 'owo' and not address[0] in self.available_servers:
                     self.available_servers.append(address[0])
-                    print(f'a new server ip have been found!! it is : {address[0]}, data : {data}')
+                    #  print(f'a new server ip have been found!! it is : {address[0]}, data : {data}')
                     # NOTE : i must write something to check if the server is disconnected and remove it from the list if so
                     # maybe a refresh button that just emptys the servers list
                     # i will leave this task for the client_handler method
@@ -89,22 +89,30 @@ class Network:
 
     def client_handler(self, conn, address): # runs in another thread to handle the interactions between each client
         while True:
-            data = conn.recv(1024)
-            if(not data or data.decode('utf-8') == "-quit"):
-                print("connection closed by client.")
-                self.clients.remove([conn, address])
-                print(f"clients: {self.clients}")
+            try:
+                data = conn.recv(1024)
+                msg = data.decode('utf-8')
+                if(not data or msg == "-quit"):
+                    print("connection closed by client.")
+                    self.clients.remove([conn, address])
+                    conn.close()
+                    for c in self.clients:
+                        print(f"clients: {c[1]}")
+                    break
+                # print(f"server recived: {data.decode('utf-8')}")
+                    # send the msg to all the clients except the one who sent it
+                for socket, addr in self.clients:
+                    if addr != address:
+                        conn.sendall((address+": "+msg).encode('utf-8'))
+                    else:
+                        conn.sendall("(sent)".encode("utf_8"))
+            except Exception as e:
+                print(f"Error: {e}")
                 break
-
-
-            print(f"server recived: {data.decode('utf-8')}")
-
-            # echo the data to the client that sent it
-            conn.sendall(data)
 
     def add_client(self, client_socket, address):
         self.clients.append([client_socket, address])
-        print(f"{address} hava joined the chat !")
+        # print(f"{address} hava joined the chat !")
         thread = threading.Thread(target=self.client_handler, args=(client_socket, address))
         thread.daemon = True
         thread.start()
