@@ -107,7 +107,7 @@ class Network:
                 msg = data.decode('utf-8')
                 # print(f"server recived: {data.decode('utf-8')}")
                     # send the msg to all the clients except the one who sent it
-                for socket, addr, name in self.clients:
+                for socket, addr, _ in self.clients:
                     #if addr != address:
                     socket.sendall(("\n" + name + ": " + msg).encode('utf-8'))
                     #else:

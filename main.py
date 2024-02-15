@@ -60,6 +60,7 @@ if(not network_manager.available_servers):  # if there is not host broadcasting 
             host_client.close()
             print("finish")
             sys.exit()
+            break
 
 
 
@@ -86,6 +87,7 @@ else:
                 host_client.close()
                 print("finish")
                 sys.exit()
+                break
 
 
 
