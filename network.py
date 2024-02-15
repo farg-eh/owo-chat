@@ -48,7 +48,7 @@ class Network:
 
         # enabling the threads
         self.search_thread = threading.Thread(target=self.search_for_ips)
-        self.search_thread.daemon = True  # Set as daemon thread   |  means the thread will be closed when the program is exited
+        self.search_thread.daemon = True  # Set as daemon thread   |  means the thread will be closed when the progrnameam is exited
         self.search_thread.start()
 
         self.broadcast_thread = threading.Thread(target=self.broadcast_password)
