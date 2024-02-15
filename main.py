@@ -56,8 +56,12 @@ if(not network_manager.available_servers):  # if there is not host broadcasting 
             msg = input("\n")
             if network_manager.running and msg:
                 host_client.sendall(msg.encode("utf-8"))
+            else:
+                client.close()
+                sys.exit()
+                break
         except:
-            host_client.close()
+            client.close()
             print("finish")
             sys.exit()
             break
@@ -83,8 +87,12 @@ else:
                 msg = input("\n")
                 if network_manager.running:
                     client.sendall(msg.encode("utf-8"))
+                else:
+                    client.close()
+                    sys.exit()
+                    break
             except:
-                host_client.close()
+                client.close()
                 print("finish")
                 sys.exit()
                 break
