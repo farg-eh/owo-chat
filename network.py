@@ -96,7 +96,7 @@ class Network:
     def client_handler(self, conn, address, name): # runs in another thread to handle the interactions between each client
 
         try: # send the name to all the clients
-            for socket, addr, name in self.clients:
+            for socket, _ , _ in self.clients:
                 socket.sendall(("\n" + name + " joined the chat.").encode('utf-8'))
         except Exception as e:
             print(f"Error :: {e}")
@@ -117,10 +117,8 @@ class Network:
                     print(f"{name}, you left. press ENTER to finish..")
                     self.clients.remove([conn, address, name])
                     conn.close()
-                    if not self.clients: # if the server is empty
-                        print(f"the server closed. press ENTER to finish..")
-                        self.close()
-                        break
+                    self.close()
+
 
             except Exception as e:
                 print(f"Error: {e}")
