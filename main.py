@@ -57,11 +57,11 @@ if(not network_manager.available_servers):  # if there is not host broadcasting 
             if network_manager.running and msg:
                 host_client.sendall(msg.encode("utf-8"))
             else:
-                client.close()
+                network_manager.close()
                 sys.exit()
                 break
         except:
-            client.close()
+            network_manager.close()
             print("finish")
             sys.exit()
             break
@@ -88,11 +88,11 @@ else:
                 if network_manager.running:
                     client.sendall(msg.encode("utf-8"))
                 else:
-                    client.close()
+                    network_manager.close()
                     sys.exit()
                     break
             except:
-                client.close()
+                network_manager.close()
                 print("finish")
                 sys.exit()
                 break
