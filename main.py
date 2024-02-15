@@ -52,12 +52,14 @@ if(not network_manager.available_servers):  # if there is not host broadcasting 
     recv_thread.start()
 
     while network_manager.running:
-        msg = input("send: ")
-        if network_manager.running and msg:
-            host_client.sendall(msg.encode("utf-8"))
-        else:
+        try:
+            msg = input("\n~>")
+            if network_manager.running and msg:
+                host_client.sendall(msg.encode("utf-8"))
+        except:
             host_client.close()
             print("finish")
+            sys.exit()
 
 
 
@@ -76,12 +78,14 @@ else:
         recv_thread.daemon = True
         recv_thread.start()
         while network_manager.running:
-            msg = input("send: ")
-            if network_manager.running:
-                client.sendall(msg.encode("utf-8"))
-            else:
-                client.close()
-                print("finished")
+            try:
+                msg = input("\n~>")
+                if network_manager.running:
+                    client.sendall(msg.encode("utf-8"))
+            except:
+                host_client.close()
+                print("finish")
+                sys.exit()
 
 
 
