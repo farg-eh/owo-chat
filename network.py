@@ -95,10 +95,11 @@ class Network:
 
     def client_handler(self, conn, address, name): # runs in another thread to handle the interactions between each client
 
-        #try: # send the name to all the clients
-            #conn.sendall(("you have joined the owo chat !").encode('utf-8'))
-        #except Exception as e:
-            #print(f"Error :: {e}")
+        try: # send the name to all the clients
+            for socket, addr, name in self.clients:
+                socket.sendall(("\n" + name + " joined the chat.").encode('utf-8'))
+        except Exception as e:
+            print(f"Error :: {e}")
 
         while self.running:
             try:
@@ -113,10 +114,11 @@ class Network:
                         #socket.sendall(("(sent)").encode('utf-8'))
 
                 if not data or msg == "-quit":
-                    print("connection closed by client.")
+                    print(f"{name}, you left. press ENTER to finish..")
                     self.clients.remove([conn, address, name])
                     conn.close()
                     if not self.clients: # if the server is empty
+                        print(f"the server closed. press ENTER to finish..")
                         self.close()
                         break
 

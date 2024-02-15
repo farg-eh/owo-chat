@@ -1,6 +1,6 @@
 from network import Network
 from support import timed_loop
-import time, socket, threading
+import time, socket, threading, sys
 
 # password = "owo"
 name = input("Enter a nickname: ")
@@ -35,10 +35,11 @@ print("searching for a host...")
 network_manager.search = True
 time.sleep(5)
 
-print(f"ip addresses found: {network_manager.available_servers}")
 
 
 if(not network_manager.available_servers):  # if there is not host broadcasting your passwnord
+    print("no hosts have been found.")
+    print("Hosting.....")
     thread = threading.Thread(target=become_server)
     thread.daemon = True
     thread.start()
@@ -53,7 +54,7 @@ if(not network_manager.available_servers):  # if there is not host broadcasting 
 
     while network_manager.running:
         try:
-            msg = input("\n~>")
+            msg = input("\n")
             if network_manager.running and msg:
                 host_client.sendall(msg.encode("utf-8"))
         except:
@@ -72,14 +73,14 @@ else:
         port = network_manager.port
         server_ip = network_manager.available_servers[0]
         client.connect((server_ip, port))
-        print("connected successfully")
+        print("connected, try sending a message note: send -quit to exit the chat")
         client.sendall(name.encode("utf-8"))
         recv_thread = threading.Thread(target=threaded_recv, args=(client,))
         recv_thread.daemon = True
         recv_thread.start()
         while network_manager.running:
             try:
-                msg = input("\n~>")
+                msg = input("\n")
                 if network_manager.running:
                     client.sendall(msg.encode("utf-8"))
             except:
