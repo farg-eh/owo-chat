@@ -115,8 +115,10 @@ class Network:
                 if not data or msg == "-quit":
                     print(f"{name}, you left. press ENTER to finish..")
                     self.clients.remove([conn, address, name])
-                    conn.close()
                     self.close()
+                    conn.close()
+                    sys.exit()
+                    break
 
 
             except Exception as e:
