@@ -20,7 +20,15 @@ def become_server():
             client_socket, address = server.accept()
             client_name = client_socket.recv(1024).decode("utf-8")
             network_manager.add_client(client_socket, address[0], client_name)
-    sys.exit()
+
+def threaded_recv(client):
+    while network_manager.running:
+        try:
+            data = client.recv(1024)
+            print(data.decode("utf-8"))
+        except:
+            client.close()
+
 
 
 print("searching for a host...")
@@ -30,7 +38,7 @@ time.sleep(5)
 print(f"ip addresses found: {network_manager.available_servers}")
 
 
-if(not network_manager.available_servers):  # if there is not host broadcasting your password
+if(not network_manager.available_servers):  # if there is not host broadcasting your passwnord
     thread = threading.Thread(target=become_server)
     thread.daemon = True
     thread.start()
@@ -39,11 +47,17 @@ if(not network_manager.available_servers):  # if there is not host broadcasting 
     host_client.connect((my_ip, network_manager.port))
     host_client.sendall(name.encode("utf-8"))
 
+    recv_thread = threading.Thread(target=threaded_recv, args=(host_client,))
+    recv_thread.daemon = True
+    recv_thread.start()    sys.exit()
+
     while network_manager.running:
-        data = host_client.recv(1024)
-        print(data.decode('utf-8'))
         msg = input("send: ")
-        host_client.sendall(msg.encode("utf-8"))
+        if network_manager.running and msg:
+            host_client.sendall(msg.encode("utf-8"))
+        else:
+            host_client.close()
+            print("finish")
 
 
 
@@ -58,11 +72,16 @@ else:
         client.connect((server_ip, port))
         print("connected successfully")
         client.sendall(name.encode("utf-8"))
+        recv_thread = threading.Thread(target=threaded_recv, args=(client,))
+        recv_thread.daemon = True
+        recv_thread.start()
         while network_manager.running:
-            data = client.recv(1024)
-            print(data.decode('utf-8'))
             msg = input("send: ")
-            client.sendall(msg.encode("utf-8"))
+            if network_manager.running:
+                client.sendall(msg.encode("utf-8"))
+            else:
+                client.close()
+                print("finished")
 
 
 

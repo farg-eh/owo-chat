@@ -104,13 +104,6 @@ class Network:
             try:
                 data = conn.recv(1024)
                 msg = data.decode('utf-8')
-                if not data or msg == "-quit":
-                    print("connection closed by client.")
-                    self.clients.remove([conn, address, name])
-                    conn.close()
-                    if not self.clients:
-                        self.close()
-                        break
                 # print(f"server recived: {data.decode('utf-8')}")
                     # send the msg to all the clients except the one who sent it
                 for socket, addr, name in self.clients:
@@ -118,12 +111,18 @@ class Network:
                         socket.sendall((name + ": " + msg).encode('utf-8'))
                     else:
                         socket.sendall(("(sent)").encode('utf-8'))
-                    #else:
-                     #   socket.sendall("(sent)".encode("utf_8"))
+
+                if not data or msg == "-quit":
+                    print("connection closed by client.")
+                    self.clients.remove([conn, address, name])
+                    conn.close()
+                    if not self.clients: # if the server is empty
+                        self.close()
+                        break
+
             except Exception as e:
                 print(f"Error: {e}")
                 break
-        sys.exit()
 
     def add_client(self, client_socket, address, name):
         self.clients.append([client_socket, address, name])
