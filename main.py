@@ -49,7 +49,7 @@ if(not network_manager.available_servers):  # if there is not host broadcasting 
 
     recv_thread = threading.Thread(target=threaded_recv, args=(host_client,))
     recv_thread.daemon = True
-    recv_thread.start()    sys.exit()
+    recv_thread.start()
 
     while network_manager.running:
         msg = input("send: ")
