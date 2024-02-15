@@ -54,12 +54,7 @@ if(not network_manager.available_servers):  # if there is not host broadcasting 
     while network_manager.running:
         try:
             msg = input("\n")
-            if network_manager.running and msg:
-                host_client.sendall(msg.encode("utf-8"))
-            else:
-                network_manager.close()
-                sys.exit()
-                break
+            host_client.sendall(msg.encode("utf-8"))
         except:
             network_manager.close()
             print("finish")
@@ -85,12 +80,7 @@ else:
         while network_manager.running:
             try:
                 msg = input("\n")
-                if network_manager.running:
-                    client.sendall(msg.encode("utf-8"))
-                else:
-                    network_manager.close()
-                    sys.exit()
-                    break
+                client.sendall(msg.encode("utf-8"))
             except:
                 network_manager.close()
                 print("finish")

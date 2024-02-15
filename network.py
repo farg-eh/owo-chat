@@ -85,7 +85,6 @@ class Network:
         self.broadcast_socket.close()
         for socket, ip, nickname in self.clients:
             socket.close()
-            print(f"closed connection with {name}")
         self.running = False
         time.sleep(0.2)
         sys.exit()
